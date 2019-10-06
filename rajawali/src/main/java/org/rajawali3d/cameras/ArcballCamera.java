@@ -26,16 +26,16 @@ public class ArcballCamera extends Camera {
     private View.OnTouchListener mGestureListener;
     private GestureDetector mDetector;
     private View mView;
-    private boolean mIsRotating;
+    protected boolean mIsRotating;
     private boolean mIsScaling;
     private Vector3 mCameraStartPos;
-    private Vector3 mPrevSphereCoord;
-    private Vector3 mCurrSphereCoord;
-    private Vector2 mPrevScreenCoord;
-    private Vector2 mCurrScreenCoord;
-    private Quaternion mStartOrientation;
-    private Quaternion mCurrentOrientation;
-    private Object3D mEmpty;
+    protected Vector3 mPrevSphereCoord;
+    protected Vector3 mCurrSphereCoord;
+    protected Vector2 mPrevScreenCoord;
+    protected Vector2 mCurrScreenCoord;
+    protected Quaternion mStartOrientation;
+    protected Quaternion mCurrentOrientation;
+    protected Object3D mEmpty;
     private Object3D mTarget;
     private Matrix4 mScratchMatrix;
     private Vector3 mScratchVector;
@@ -88,7 +88,7 @@ public class ArcballCamera extends Camera {
         return mScreenMapping;
     }
 
-    private void mapToSphere(final float x, final float y, Vector3 out) {
+    protected void mapToSphere(final float x, final float y, Vector3 out) {
         float lengthSquared = x * x + y * y;
         if (lengthSquared > 1) {
             out.setAll(x, y, 0);
@@ -98,9 +98,10 @@ public class ArcballCamera extends Camera {
         }
     }
 
-    private void mapToScreen(final float x, final float y, Vector2 out) {
-        out.setX(mScreenMapping * (2 * x - mLastWidth) / mLastWidth);
-        out.setY(-mScreenMapping * (2 * y - mLastHeight) / mLastHeight);
+    protected void mapToScreen(final float x, final float y, Vector2 out) {
+        int square = Math.max(mLastHeight, mLastWidth);
+        out.setX(mScreenMapping * (2 * x - mLastWidth) / square);
+        out.setY(-mScreenMapping * (2 * y - mLastHeight) / square);
     }
 
     private void startRotation(final float x, final float y) {
@@ -121,7 +122,7 @@ public class ArcballCamera extends Camera {
         mStartOrientation.multiply(mCurrentOrientation);
     }
 
-    private void applyRotation() {
+    protected void applyRotation() {
         if (mIsRotating) {
             mapToSphere((float) mPrevScreenCoord.getX(), (float) mPrevScreenCoord.getY(), mPrevSphereCoord);
             mapToSphere((float) mCurrScreenCoord.getX(), (float) mCurrScreenCoord.getY(), mCurrSphereCoord);

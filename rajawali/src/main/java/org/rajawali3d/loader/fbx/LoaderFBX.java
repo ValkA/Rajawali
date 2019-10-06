@@ -365,9 +365,6 @@ public class LoaderFBX extends AMeshLoader {
 		o.setScale(model.properties.lclScaling);
 		o.setRotation(model.properties.lclRotation);
 		o.setDrawingMode(GLES20.GL_TRIANGLES);
-
-//		Object3D n = new NormalsObject3D(o, 4,1f);
-//		o.addChild(n);
 		mRootObject.addChild(o);
 	}
 
