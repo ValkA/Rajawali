@@ -56,6 +56,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Stack;
+import java.util.regex.Pattern;
+
 public class LoaderFBX extends AMeshLoader {
 	private static final char COMMENT = ';';
 	private static final String OBJECT_TYPE = "ObjectType:";
@@ -487,8 +489,15 @@ public class LoaderFBX extends AMeshLoader {
 		return mat;
 	}
 
+	final Pattern PATTERN_CLEAN = Pattern.compile("["+REGEX_CLEAN+"]+");
+	final Pattern PATTERN_NO_FUNNY_CHARS = Pattern.compile("["+REGEX_NO_FUNNY_CHARS+"]+");
+	final Pattern PATTERN_NO_QUOTE = Pattern.compile("["+REGEX_NO_QUOTE+"]+");
+	final Pattern PATTERN_NO_SPACE_NO_QUOTE = Pattern.compile("["+REGEX_NO_SPACE_NO_QUOTE+"]+");
+	final Pattern PATTERN_W_d = Pattern.compile("[\\W|\\d]+");
+	final Pattern PATTERN_s = Pattern.compile("[\\s]+");
 	private void readLine(BufferedReader buffer, String line) throws IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-		if(line.replaceAll(REGEX_CLEAN, REPLACE_EMPTY).length() == 0) return;
+//		if(line.replaceAll(REGEX_CLEAN, REPLACE_EMPTY).length() == 0) return;
+		if(PATTERN_CLEAN.matcher(line).replaceAll(REPLACE_EMPTY).length() == 0) return;
 		if(line.contains("{")) {
 
 			// -- found new object
@@ -497,7 +506,7 @@ public class LoaderFBX extends AMeshLoader {
 
 			if(line.contains(":")) {
 				if(line.contains(OBJECT_TYPE)) {
-					String val = line.split(":")[1].replaceAll(REGEX_NO_FUNNY_CHARS, REPLACE_EMPTY);
+					String val = PATTERN_NO_FUNNY_CHARS.matcher(line.split(":")[1]).replaceAll(REPLACE_EMPTY);
 					Object ot = last.getClass().getDeclaredMethod("addObjectType", String.class).invoke(last, val);
 					mObjStack.push(ot);
 					return;
@@ -508,15 +517,16 @@ public class LoaderFBX extends AMeshLoader {
 						mObjStack.push(new Object());
 						return;
 					}
-					vals[0] = vals[0].split(": ")[1].replaceAll(REGEX_NO_QUOTE, REPLACE_EMPTY);
-					vals[1] = vals[1].replaceAll(REGEX_NO_FUNNY_CHARS, REPLACE_EMPTY);
+
+					vals[0] = PATTERN_NO_QUOTE.matcher(vals[0].split(": ")[1]).replaceAll(REPLACE_EMPTY);
+					vals[1] = PATTERN_NO_FUNNY_CHARS.matcher(vals[1]).replaceAll(REPLACE_EMPTY);
 
 					Object mo = last.getClass().getDeclaredMethod("addModel", String.class, String.class).invoke(last, vals[0], vals[1]);
 					mObjStack.push(mo);
 					return;
 				} else if(line.contains(MATERIAL) && !line.contains(LAYER_ELEMENT)) {
 					String[] vals = line.split(": ")[1].split(",");
-					vals[0] = vals[0].replaceAll(REGEX_NO_SPACE_NO_QUOTE, REPLACE_EMPTY);
+					vals[0] = PATTERN_NO_SPACE_NO_QUOTE.matcher(vals[0]).replaceAll(REPLACE_EMPTY);
 
 					Object ma = last.getClass().getDeclaredMethod("addMaterial", String.class).invoke(last, vals[0]);
 					mObjStack.push(ma);
@@ -528,24 +538,24 @@ public class LoaderFBX extends AMeshLoader {
 				} else if(line.contains(PROPERTIES)) {
 					line = "Properties";
 				} else if(line.contains(LAYER_ELEMENT)) {
-					line = line.replaceAll("\\W|\\d", REPLACE_EMPTY);
+					line = PATTERN_W_d.matcher(line).replaceAll(REPLACE_EMPTY);
 				} else if(line.contains(LAYER)) {
 					line = LAYER;
 				} else if(line.contains(POSE)) {
 					String val = line.split(":")[1];
 					String[] vals = val.split(",");
-					last.getClass().getDeclaredMethod("setPoseName", String.class).invoke(last, vals[0].replaceAll(REGEX_NO_FUNNY_CHARS, REPLACE_EMPTY));
+					last.getClass().getDeclaredMethod("setPoseName", String.class).invoke(last, PATTERN_NO_FUNNY_CHARS.matcher(vals[0]).replaceAll(REPLACE_EMPTY));
 					line = POSE;
 				} else if(line.contains(TEXTURE)) {
 					String val = line.split(": ")[1];
 					String[] vals = val.split(",");
-					Object te = last.getClass().getDeclaredMethod("addTexture", String.class, String.class).invoke(last, vals[0].replaceAll(REGEX_NO_QUOTE, REPLACE_EMPTY), vals[1].replace(REGEX_NO_QUOTE, REPLACE_EMPTY));
+					Object te = last.getClass().getDeclaredMethod("addTexture", String.class, String.class).invoke(last, PATTERN_NO_QUOTE.matcher(vals[0]).replaceAll(REPLACE_EMPTY), PATTERN_NO_QUOTE.matcher(vals[1]).replaceAll(REPLACE_EMPTY));
 					mObjStack.push(te);
 					return;
 				}
 			}
 
-			line = line.replaceAll(REGEX_NO_FUNNY_CHARS, REPLACE_EMPTY);
+			line = PATTERN_NO_FUNNY_CHARS.matcher(line).replaceAll(REPLACE_EMPTY);
 			line = line.replaceAll(FBX_U, FBX_L);
 			line = line.substring(0,1).toLowerCase(Locale.US) + line.substring(1);
 
@@ -569,7 +579,7 @@ public class LoaderFBX extends AMeshLoader {
 			Object last = mObjStack.peek();
 			String[] spl = line.split(": ");
 			if(spl.length == 0) return;
-			String prop = spl[0].replaceAll(REGEX_NO_FUNNY_CHARS, REPLACE_EMPTY);
+			String prop = PATTERN_NO_FUNNY_CHARS.matcher(spl[0]).replaceAll(REPLACE_EMPTY);
 			prop = prop.replaceAll(FBX_U, FBX_L);
 			prop = prop.substring(0,1).toLowerCase(Locale.US) + prop.substring(1);
 			boolean processNextLine = false;
@@ -581,9 +591,9 @@ public class LoaderFBX extends AMeshLoader {
 
 				if(line.contains(PROPERTY)) {
 					String[] vals = val.split(",");
-					prop = vals[0].replaceAll(REGEX_NO_FUNNY_CHARS, REPLACE_EMPTY);
+					prop = PATTERN_NO_FUNNY_CHARS.matcher(vals[0]).replaceAll(REPLACE_EMPTY);
 					prop = prop.substring(0,1).toLowerCase(Locale.US) + prop.substring(1);
-					String type = vals[1].replaceAll(REGEX_NO_FUNNY_CHARS, REPLACE_EMPTY);
+					String type = PATTERN_NO_FUNNY_CHARS.matcher(vals[1]).replaceAll(REPLACE_EMPTY);
 
 					if(type.equals(TYPE_VECTOR3D) || type.equals(TYPE_COLOR) || type.equals(TYPE_COLOR_RGB) || type.equals(TYPE_LCL_ROTATION)
 							|| type.equals(TYPE_LCL_SCALING) || type.equals(TYPE_LCL_TRANSLATION) || type.equals(TYPE_VECTOR)) {
@@ -591,13 +601,13 @@ public class LoaderFBX extends AMeshLoader {
 					} else {
 						if(vals.length < 4)
 							return;
-						val = vals[3].replaceAll(REGEX_NO_QUOTE, REPLACE_EMPTY);
+						val = PATTERN_NO_QUOTE.matcher(vals[3]).replaceAll(REPLACE_EMPTY);
 					}
 				} else if(line.contains(CONNECT)) {
 					String[] vals = line.substring(line.indexOf(':')).split(",");
 
 					last.getClass().getDeclaredMethod("addConnection", String.class, String.class, String.class)
-					.invoke(last, vals[0].replaceAll(REGEX_NO_SPACE_NO_QUOTE, REPLACE_EMPTY), vals[1].replaceAll(REGEX_NO_SPACE_NO_QUOTE, REPLACE_EMPTY), vals[2].replaceAll(REGEX_NO_SPACE_NO_QUOTE, REPLACE_EMPTY));
+					.invoke(last, PATTERN_NO_SPACE_NO_QUOTE.matcher(vals[0]).replaceAll(REPLACE_EMPTY), PATTERN_NO_SPACE_NO_QUOTE.matcher(vals[1]).replaceAll(REPLACE_EMPTY), PATTERN_NO_SPACE_NO_QUOTE.matcher(vals[2]).replaceAll(REPLACE_EMPTY));
 					return;
 				}
 
@@ -608,14 +618,14 @@ public class LoaderFBX extends AMeshLoader {
 				{
 					// TODO investigate why there are multiple values in TextureId sometimes
 					if(val.split(",").length > 0) val = val.split(",")[0];
-					field.set(obj, Integer.valueOf(val.replaceAll(REGEX_NO_SPACE_NO_QUOTE, REPLACE_EMPTY)));
+					field.set(obj, Integer.valueOf(PATTERN_NO_SPACE_NO_QUOTE.matcher(val).replaceAll(REPLACE_EMPTY)));
 				}
 				else if(clazz.equals(String.class))
-					field.set(obj, val.replaceAll(REGEX_NO_QUOTE, REPLACE_EMPTY));
+					field.set(obj, PATTERN_NO_QUOTE.matcher(val).replaceAll(REPLACE_EMPTY));
 				else if(clazz.equals(Long.class))
-					field.set(obj, Long.valueOf(val.replaceAll(REGEX_NO_SPACE_NO_QUOTE, REPLACE_EMPTY)));
+					field.set(obj, Long.valueOf(PATTERN_NO_SPACE_NO_QUOTE.matcher(val).replaceAll(REPLACE_EMPTY)));
 				else if(clazz.equals(Float.class))
-					field.set(obj, Float.valueOf(val.replaceAll(REGEX_NO_SPACE_NO_QUOTE, REPLACE_EMPTY)));
+					field.set(obj, Float.valueOf(PATTERN_NO_SPACE_NO_QUOTE.matcher(val).replaceAll(REPLACE_EMPTY)));
 				else if(clazz.equals(Vector3.class)) {
 					field.set(obj, new Vector3(val.split(",")));
 				}
@@ -624,7 +634,7 @@ public class LoaderFBX extends AMeshLoader {
 					StringBuffer sb = new StringBuffer(val);
 					String noSpace;
 					while((line = buffer.readLine()) != null) {
-						noSpace = line.replaceAll("\\s", REPLACE_EMPTY);
+						noSpace = PATTERN_s.matcher(line).replaceAll(REPLACE_EMPTY);
 						if(noSpace.length() > 0 && noSpace.charAt(0) == ',')
 							sb.append(noSpace);
 						else
@@ -640,7 +650,7 @@ public class LoaderFBX extends AMeshLoader {
 					StringBuffer sb = new StringBuffer(val);
 					String noSpace;
 					while((line = buffer.readLine()) != null) {
-						noSpace = line.replaceAll("\\s", REPLACE_EMPTY);
+						noSpace = PATTERN_s.matcher(line).replaceAll(REPLACE_EMPTY);
 						if(noSpace.length() > 0 && noSpace.charAt(0) == ',')
 							sb.append(noSpace);
 						else
@@ -656,7 +666,7 @@ public class LoaderFBX extends AMeshLoader {
 					StringBuffer sb = new StringBuffer(val);
 					String noSpace;
 					while((line = buffer.readLine()) != null) {
-						noSpace = line.replaceAll(REGEX_CLEAN, REPLACE_EMPTY);
+						noSpace = PATTERN_CLEAN.matcher(line).replaceAll(REPLACE_EMPTY);
 						if(noSpace.length() > 0 && noSpace.charAt(0) == ',')
 							sb.append(noSpace);
 						else
@@ -673,10 +683,10 @@ public class LoaderFBX extends AMeshLoader {
 				}
 				else if(clazz.equals(Vector2.class))
 				{
-					field.set(obj, new Vector2(val.replaceAll("\\s", REPLACE_EMPTY).split(",")));
+					field.set(obj, new Vector2(PATTERN_s.matcher(val).replaceAll(REPLACE_EMPTY).split(",")));
 				}
 
-				if(processNextLine && line.replaceAll(REGEX_CLEAN, REPLACE_EMPTY).length() > 0)
+				if(processNextLine && PATTERN_CLEAN.matcher(line).replaceAll(REPLACE_EMPTY).length() > 0)
 					readLine(buffer, line);
 			} catch(NoSuchFieldException e) {
 				return;

@@ -12,6 +12,7 @@
  */
 package org.rajawali3d.loader.fbx;
 
+import java.util.Scanner;
 import java.util.Stack;
 
 import org.rajawali3d.math.vector.Vector2;
@@ -439,7 +440,7 @@ public class FBXValues {
 			data = new float[num];
 			
 			for(int i=0; i<num; ++i)
-				data[i] = Float.parseFloat(values[i].replaceAll("\\s", ""));
+				data[i] = Float.parseFloat(values[i].trim());
 		}
 	}
 
