@@ -856,7 +856,7 @@ open class TextureView @JvmOverloads constructor(
                     EGL10.EGL_BAD_PARAMETER -> return "EGL_BAD_PARAMETER"
                     EGL10.EGL_BAD_SURFACE -> return "EGL_BAD_SURFACE"
                     EGL11.EGL_CONTEXT_LOST -> return "EGL_CONTEXT_LOST"
-                    else -> return "0x" + Integer.toHexString(error).toUpperCase(Locale.US)
+                    else -> return "0x" + Integer.toHexString(error).uppercase(Locale.US)
                 }
             }
         }
@@ -936,10 +936,10 @@ open class TextureView @JvmOverloads constructor(
             } catch (e: InterruptedException) {
                 // fall thru and exit normally
             } catch (e: IllegalStateException) {
-                Log.e("RajawaliGLThread", e.message)
+                Log.e("RajawaliGLThread", e.message ?: "")
                 showToast(e.message)
             } catch (e: Exception) {
-                Log.e("RajawaliGLThread", e.message)
+                Log.e("RajawaliGLThread", e.message ?: "")
             } finally {
                 glThreadManager.threadExiting(this)
             }

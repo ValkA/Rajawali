@@ -1,12 +1,13 @@
 plugins {
     id 'com.android.library'
+    id 'kotlin-android'
 }
 
 android {
     compileSdkVersion rootProject.compileSdk
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion rootProject.minSdk
         targetSdkVersion rootProject.targetSdk
         versionCode rootProject.versionCode
         versionName rootProject.versionName
@@ -46,19 +47,19 @@ android {
         preDexLibraries = !isCi
         javaMaxHeapSize maxDexHeap
     }
+    namespace 'org.rajawali3d'
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.1.0'
-    testImplementation 'junit:junit:4.12'
+    implementation 'androidx.annotation:annotation:1.5.0'
+    testImplementation 'junit:junit:4.13.2'
 
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test:rules:1.2.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 //apply from: '../publish.gradle'
-apply plugin: 'kotlin-android'
 
 //task dokkaGhPages(type: org.jetbrains.dokka.gradle.DokkaTask) {
 //    outputFormat = 'html'
