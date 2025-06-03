@@ -1,9 +1,10 @@
 package org.rajawali3d.renderer;
 
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.filters.SmallTest;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import android.view.MotionEvent;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +15,7 @@ public class RendererTest {
 
     @Test
     public void testInstantiation() {
-        new Renderer(InstrumentationRegistry.getTargetContext()) {
+        new Renderer(InstrumentationRegistry.getInstrumentation().getTargetContext()) {
 
             @Override
             public void onOffsetsChanged(float xOffset, float yOffset, float xOffsetStep, float yOffsetStep, int xPixelOffset, int yPixelOffset) {

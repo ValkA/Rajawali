@@ -1,7 +1,7 @@
 package org.rajawali3d.math;
 
+import org.junit.Assert;
 import org.junit.Test;
-import org.rajawali3d.WorldParameters;
 import org.rajawali3d.math.vector.Vector3;
 import org.rajawali3d.math.vector.Vector3.Axis;
 
@@ -893,7 +893,7 @@ public class QuaternionTest {
     public void testGetRotationX() {
         final Quaternion q = new Quaternion();
         q.fromAngleAxis(Axis.X, 45);
-        assertEquals(MathUtil.degreesToRadians(45d), q.getRotationX(), 1e-14);
+        Assert.assertEquals(MathUtil.degreesToRadians(45d), q.getRotationX(), 1e-14);
     }
 
     @Test

@@ -1,13 +1,13 @@
 package org.rajawali3d.animation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.rajawali3d.math.Quaternion;
 import org.rajawali3d.math.vector.Vector3;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
