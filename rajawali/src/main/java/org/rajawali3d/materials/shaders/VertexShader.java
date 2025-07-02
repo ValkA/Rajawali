@@ -30,6 +30,7 @@ public class VertexShader extends AShader {
     private RMat4 muModelMatrix;
     private RMat4 muInverseViewMatrix;
     private RMat4 muModelViewMatrix;
+    private RMat3 muTextureTransformMatrix;
     private RVec4 muColor;
 
     private RVec2 maTextureCoord;
@@ -51,6 +52,7 @@ public class VertexShader extends AShader {
     private int muMVPMatrixHandle;
     private int muNormalMatrixHandle;
     private int muModelMatrixHandle;
+    private int muTextureTransformMatrixHandle;
     private int muInverseViewMatrixHandle;
     private int muModelViewMatrixHandle;
     private int muColorHandle;
@@ -71,6 +73,7 @@ public class VertexShader extends AShader {
     private boolean      mHasSkyTexture;
     private boolean      mUseVertexColors;
     private boolean      mTimeEnabled;
+    private boolean      mTextureTransformMatrixEnabled;
 
     public VertexShader() {
         super(ShaderType.VERTEX);
@@ -102,6 +105,9 @@ public class VertexShader extends AShader {
         muColor = (RVec4) addUniform(DefaultShaderVar.U_COLOR);
         if (mTimeEnabled) {
             addUniform(DefaultShaderVar.U_TIME);
+        }
+        if (mTextureTransformMatrixEnabled){
+            muTextureTransformMatrix = (RMat3) addUniform(DefaultShaderVar.U_TEXTURE_TRANSFORM_MATRIX);
         }
 
         // -- attributes
@@ -135,7 +141,13 @@ public class VertexShader extends AShader {
     public void main() {
         mgPosition.assign(maPosition);
         mgNormal.assign(maNormal);
-        mgTextureCoord.assign(maTextureCoord);
+
+        if (mTextureTransformMatrixEnabled){
+            mgTextureCoord.assign(new RVec3(muTextureTransformMatrix.multiply(castVec3(maTextureCoord.getVarName()+", 1.0"))).xy());
+        } else {
+            mgTextureCoord.assign(maTextureCoord);
+        }
+
         if (mUseVertexColors) {
             mgColor.assign(maVertexColor);
         } else {
@@ -208,7 +220,7 @@ public class VertexShader extends AShader {
         muModelViewMatrixHandle = getUniformLocation(programHandle, DefaultShaderVar.U_MODEL_VIEW_MATRIX);
         muColorHandle = getUniformLocation(programHandle, DefaultShaderVar.U_COLOR);
         muTimeHandle = getUniformLocation(programHandle, DefaultShaderVar.U_TIME);
-
+        muTextureTransformMatrixHandle = getUniformLocation(programHandle, DefaultShaderVar.U_TEXTURE_TRANSFORM_MATRIX);
         super.setLocations(programHandle);
     }
 
@@ -274,6 +286,10 @@ public class VertexShader extends AShader {
         GLES20.glUniformMatrix3fv(muNormalMatrixHandle, 1, false, normalMatrix, 0);
     }
 
+    public void setTextureTransformMatrix(float[] textureTransformMatrix) {
+        GLES20.glUniformMatrix3fv(muTextureTransformMatrixHandle, 1, false, textureTransformMatrix, 0);
+    }
+
     public void setInverseViewMatrix(float[] inverseViewMatrix) {
         GLES20.glUniformMatrix4fv(muInverseViewMatrixHandle, 1, false, inverseViewMatrix, 0);
     }
@@ -319,6 +335,10 @@ public class VertexShader extends AShader {
 
     public void enableTime(boolean value) {
         mTimeEnabled = value;
+    }
+
+    public void enableTextureTransformMatrix(boolean value){
+        mTextureTransformMatrixEnabled = value;
     }
 
     public void setTime(float time) {

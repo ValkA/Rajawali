@@ -14,6 +14,8 @@ package org.rajawali3d.materials;
 
 import android.graphics.Color;
 import android.opengl.GLES20;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import org.rajawali3d.BufferInfo;
@@ -238,6 +240,10 @@ public class Material {
     protected ArrayList<ATexture> mTextureList;
 
     protected Map<String, Integer> mTextureHandles;
+
+    boolean isTextureTransformMatrixEnabled = false;
+    Matrix4 mTextureTransformMatrixUV01 = new Matrix4().identity();
+    protected final float[] mTextureTransformMatrix = new float[9]; // [u,v,1]*[u,v,1]
     /**
      * Contains the normal matrix. The normal matrix is used in the shaders to transform
      * the normal into eye space.
@@ -598,6 +604,7 @@ public class Material {
             mVertexShader.hasCubeMaps(hasCubeMaps);
             mVertexShader.hasSkyTexture(skyTextures != null && skyTextures.size() > 0);
             mVertexShader.useVertexColors(mUseVertexColors);
+            mVertexShader.enableTextureTransformMatrix(isTextureTransformMatrixEnabled);
             onPreVertexShaderInitialize(mVertexShader);
             mVertexShader.initialize();
             mFragmentShader = new FragmentShader();
@@ -756,6 +763,7 @@ public class Material {
      * @return
      */
     private int loadShader(int shaderType, String source) {
+        // TODO: cache shaders here!
         int shader = GLES20.glCreateShader(shaderType);
         if (shader != 0) {
             GLES20.glShaderSource(shader, source);
@@ -1002,6 +1010,33 @@ public class Material {
      */
     public void setTextureCoords(final int textureCoordBufferHandle) {
         mVertexShader.setTextureCoords(textureCoordBufferHandle);
+    }
+
+    public void setTextureTransfomMatrix(Matrix4 matUV01){
+        double[] m = matUV01.getDoubleValues();
+
+        mTextureTransformMatrix[0] = (float)m[0];
+        mTextureTransformMatrix[1] = (float)m[1];
+        mTextureTransformMatrix[2] = (float)m[3];
+
+        mTextureTransformMatrix[3] = (float)m[4];
+        mTextureTransformMatrix[4] = (float)m[5];
+        mTextureTransformMatrix[5] = (float)m[7];
+
+        mTextureTransformMatrix[6] = (float)m[12];
+        mTextureTransformMatrix[7] = (float)m[13];
+        mTextureTransformMatrix[8] = (float)m[15];
+    }
+
+    public void setTextureTransformMatrix(){
+        if (isTextureTransformMatrixEnabled) {
+            mVertexShader.setTextureTransformMatrix(mTextureTransformMatrix);
+        }
+    }
+
+    public void setTextureTransformMatrixEnabled(boolean value){
+        isTextureTransformMatrixEnabled = value;
+        mIsDirty = true;
     }
 
     /**

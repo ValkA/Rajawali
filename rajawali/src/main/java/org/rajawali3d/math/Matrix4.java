@@ -193,6 +193,19 @@ public final class Matrix4 implements Cloneable {
         return setAll(mQuat.setAll(w, x, y, z));
     }
 
+    @NonNull
+    public Matrix4 setZRotationAroundXY(double theta, double x, double y){
+        // @formatter:off
+        double sin = Math.sin(theta);
+        double cos = Math.cos(theta);
+        m[M00] = cos;	            m[M01] = -sin;          	m[M02] = 0;	        m[M03] = -x*cos+y*sin+x;
+        m[M10] = sin;    	        m[M11] = cos;	            m[M12] = 0;	        m[M13] = -x*sin-y*cos+y;
+        m[M20] = 0;	                m[M21] = 0;	                m[M22] = 1;	        m[M23] = 0;
+        m[M30] = 0;			        m[M31] = 0;			        m[M32] = 0;			m[M33] = 1;
+        return this;
+        // @formatter:on
+    }
+
     /**
      * Sets the four columns of this {@link Matrix4} which correspond to the x-, y-, and z-
      * axis of the vector space this {@link Matrix4} creates as well as the 4th column representing

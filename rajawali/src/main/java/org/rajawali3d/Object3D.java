@@ -300,6 +300,7 @@ public class Object3D extends ATransformable3D implements Comparable<Object3D>, 
             material.setModelMatrix(mMMatrix);
             material.setInverseViewMatrix(mInverseViewMatrix);
             material.setModelViewMatrix(mMVMatrix);
+            material.setTextureTransformMatrix();
 
             if (mIsVisible) {
                 int bufferType = mGeometry.getIndexBufferInfo().bufferType == Geometry3D.BufferType.SHORT_BUFFER
