@@ -14,7 +14,6 @@ package org.rajawali3d.materials;
 
 import android.graphics.Color;
 import android.opengl.GLES20;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 

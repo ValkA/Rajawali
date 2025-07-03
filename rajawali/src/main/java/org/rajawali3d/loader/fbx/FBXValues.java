@@ -12,12 +12,13 @@
  */
 package org.rajawali3d.loader.fbx;
 
-import java.util.Scanner;
-import java.util.Stack;
+import android.graphics.Color;
 
 import org.rajawali3d.math.vector.Vector2;
 import org.rajawali3d.math.vector.Vector3;
-import android.graphics.Color;
+
+import java.util.Stack;
+import java.util.regex.Pattern;
 
 public class FBXValues {
 	public static final String MODELTYPE_CAMERA_SWITCHER = "CameraSwitcher";
@@ -25,6 +26,8 @@ public class FBXValues {
 	public static final String MODELTYPE_LIGHT = "Light";
 	public static final String MODELTYPE_MESH = "Mesh";
 	public static final String MODELTYPE_NULL = "Null";
+
+	static final Pattern PATTERN_S = Pattern.compile("\\s");
 
 	public FBXHeaderExtension fbxHeaderExtension = new FBXHeaderExtension();
 	public String creationTime;
@@ -427,7 +430,7 @@ public class FBXValues {
 			data = new float[num];
 			
 			for(int i=0; i<num; ++i)
-				data[i] = Float.parseFloat(values[i].replaceAll("\\s", ""));
+				data[i] = Float.parseFloat(PATTERN_S.matcher(values[i]).replaceAll(""));
 		}
 	}
 
@@ -453,7 +456,7 @@ public class FBXValues {
 			data = new int[num];
 			
 			for(int i=0; i<num; ++i)
-				data[i] = Integer.parseInt(values[i].replaceAll("\\s", ""));
+				data[i] = Integer.parseInt(PATTERN_S.matcher(values[i]).replaceAll(""));
 		}
 	}
 	

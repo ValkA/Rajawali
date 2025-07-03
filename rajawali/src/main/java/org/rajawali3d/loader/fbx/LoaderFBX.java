@@ -17,9 +17,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.opengl.GLES20;
 
-import org.rajawali3d.cameras.Camera;
 import org.rajawali3d.Object3D;
-import org.rajawali3d.debug.NormalsObject3D;
+import org.rajawali3d.cameras.Camera;
 import org.rajawali3d.lights.ALight;
 import org.rajawali3d.lights.DirectionalLight;
 import org.rajawali3d.lights.PointLight;
@@ -52,7 +51,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Stack;
@@ -133,7 +131,7 @@ public class LoaderFBX extends AMeshLoader {
 		String line;
 		try {
 			while((line = buffer.readLine()) != null) {
-				String repl = line.replaceAll(REGEX_CLEAN, REPLACE_EMPTY);
+				String repl = PATTERN_CLEAN.matcher(line).replaceAll(REPLACE_EMPTY);
 				if(repl.length() == 0 || repl.charAt(0) == COMMENT)
 					continue;
 
@@ -431,7 +429,7 @@ public class LoaderFBX extends AMeshLoader {
 						}
 					}
 					o.getMaterial().setColorInfluence(0);
-					o.getMaterial().addTexture(new Texture(textureName.replaceAll("[\\W]|_", ""), bitmap));
+					o.getMaterial().addTexture(new Texture(PATTERN_W_or_.matcher(textureName).replaceAll(""), bitmap));
 					return;
 				}
 			}
@@ -494,6 +492,7 @@ public class LoaderFBX extends AMeshLoader {
 	final Pattern PATTERN_NO_QUOTE = Pattern.compile("["+REGEX_NO_QUOTE+"]+");
 	final Pattern PATTERN_NO_SPACE_NO_QUOTE = Pattern.compile("["+REGEX_NO_SPACE_NO_QUOTE+"]+");
 	final Pattern PATTERN_W_d = Pattern.compile("[\\W|\\d]+");
+	final Pattern PATTERN_W_or_ = Pattern.compile("[\\W]|_");
 	final Pattern PATTERN_s = Pattern.compile("[\\s]+");
 	private void readLine(BufferedReader buffer, String line) throws IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 //		if(line.replaceAll(REGEX_CLEAN, REPLACE_EMPTY).length() == 0) return;
@@ -556,7 +555,7 @@ public class LoaderFBX extends AMeshLoader {
 			}
 
 			line = PATTERN_NO_FUNNY_CHARS.matcher(line).replaceAll(REPLACE_EMPTY);
-			line = line.replaceAll(FBX_U, FBX_L);
+			line = line.replace(FBX_U, FBX_L);
 			line = line.substring(0,1).toLowerCase(Locale.US) + line.substring(1);
 
 			try {
@@ -580,7 +579,7 @@ public class LoaderFBX extends AMeshLoader {
 			String[] spl = line.split(": ");
 			if(spl.length == 0) return;
 			String prop = PATTERN_NO_FUNNY_CHARS.matcher(spl[0]).replaceAll(REPLACE_EMPTY);
-			prop = prop.replaceAll(FBX_U, FBX_L);
+			prop = prop.replace(FBX_U, FBX_L);
 			prop = prop.substring(0,1).toLowerCase(Locale.US) + prop.substring(1);
 			boolean processNextLine = false;
 
@@ -631,7 +630,7 @@ public class LoaderFBX extends AMeshLoader {
 				}
 				else if(clazz.equals(FBXFloatBuffer.class))
 				{
-					StringBuffer sb = new StringBuffer(val);
+					StringBuilder sb = new StringBuilder(val);
 					String noSpace;
 					while((line = buffer.readLine()) != null) {
 						noSpace = PATTERN_s.matcher(line).replaceAll(REPLACE_EMPTY);
@@ -647,7 +646,7 @@ public class LoaderFBX extends AMeshLoader {
 				}
 				else if(clazz.equals(FBXIntBuffer.class))
 				{
-					StringBuffer sb = new StringBuffer(val);
+					StringBuilder sb = new StringBuilder(val);
 					String noSpace;
 					while((line = buffer.readLine()) != null) {
 						noSpace = PATTERN_s.matcher(line).replaceAll(REPLACE_EMPTY);
@@ -663,7 +662,7 @@ public class LoaderFBX extends AMeshLoader {
 				}
 				else if(clazz.equals(FBXMatrix.class))
 				{
-					StringBuffer sb = new StringBuffer(val);
+					StringBuilder sb = new StringBuilder(val);
 					String noSpace;
 					while((line = buffer.readLine()) != null) {
 						noSpace = PATTERN_CLEAN.matcher(line).replaceAll(REPLACE_EMPTY);
