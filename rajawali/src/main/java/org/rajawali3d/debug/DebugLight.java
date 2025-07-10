@@ -40,8 +40,10 @@ public class DebugLight extends DebugObject3D {
         mCircle.setScale(mPosition.distanceTo(camera.getPosition()) * 0.1f);
         mCircle.setPosition(mLight.getPosition());
 
-        mLine.setPosition(mLight.getPosition());
-        mLine.setOrientation(mLight.getOrientation());
+        if (mLine != null) {
+            mLine.setPosition(mLight.getPosition());
+            mLine.setOrientation(mLight.getOrientation());
+        }
     }
 
     private void createLines() {
