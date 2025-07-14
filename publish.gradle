@@ -4,7 +4,7 @@ apply plugin: 'signing'
 apply plugin: 'jacoco'
 
 jacoco {
-    toolVersion = '0.8.1'
+    toolVersion = '0.8.6'
 }
 
 tasks.withType(Test) {
@@ -31,10 +31,6 @@ task jacocoTestReport(type: JacocoReport) {
         println "Creating Jacoco Report for ${files.size()} coverage files"
         files.each { file -> println file }
     }
-
-    sourceDirectories = files([mainSrc])
-    classDirectories = files([debugTree])
-    executionData = files([ecSrc, execSrc])
 }
 
 dokka {
@@ -103,11 +99,13 @@ publishing {
         def releaseUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
         def snapshotUrl = "https://oss.sonatype.org/content/repositories/snapshots"
 
-        maven {
-            url !version.contains("SNAPSHOT") ? releaseUrl : snapshotUrl
-            credentials {
-                username System.getenv('SONATYPE_USERNAME') ?: ""
-                password System.getenv('SONATYPE_PASSWORD') ?: ""
+        if (!version.contains("DIRTY")) {
+            maven {
+                url !version.contains("SNAPSHOT") ? releaseUrl : snapshotUrl
+                credentials {
+                    username System.getenv('SONATYPE_USERNAME') ?: ""
+                    password System.getenv('SONATYPE_PASSWORD') ?: ""
+                }
             }
         }
     }

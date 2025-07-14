@@ -8,13 +8,19 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion rootProject.targetSdk
-        versionCode rootProject.versionCode
-        versionName rootProject.versionName
+        versionCode getGitCommitCount()
+        versionName version
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    // https://stackoverflow.com/a/56453718/1079990
+    packagingOptions {
+        pickFirst 'lib/armeabi-v7a/libvraudio_engine.so'
+        pickFirst 'lib/armeabi-v7a/libvrtoolkit.so'
     }
 
     buildTypes {
@@ -39,7 +45,7 @@ dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
-    implementation 'androidx.annotation:annotation:1.0.0'
+    implementation 'androidx.annotation:annotation:1.1.0'
 
     implementation project(':rajawali')
 }

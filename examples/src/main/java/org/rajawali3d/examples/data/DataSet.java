@@ -2,8 +2,6 @@ package org.rajawali3d.examples.data;
 
 import androidx.annotation.NonNull;
 
-import com.rajawali3d.examples.data.DataSetImpl;
-
 import org.rajawali3d.examples.R;
 import org.rajawali3d.examples.examples.animation.AnimationFragment;
 import org.rajawali3d.examples.examples.animation.BezierFragment;
@@ -34,6 +32,7 @@ import org.rajawali3d.examples.examples.general.UsingGeometryDataFragment;
 import org.rajawali3d.examples.examples.interactive.AccelerometerFragment;
 import org.rajawali3d.examples.examples.interactive.FirstPersonCameraFragment;
 import org.rajawali3d.examples.examples.interactive.ObjectPickingFragment;
+import org.rajawali3d.examples.examples.interactive.ObjectRotateFragment;
 import org.rajawali3d.examples.examples.interactive.TouchAndDragFragment;
 import org.rajawali3d.examples.examples.lights.DirectionalLightFragment;
 import org.rajawali3d.examples.examples.lights.MultipleLightsFragment;
@@ -89,7 +88,6 @@ public final class DataSet {
 
     private DataSet() {
         categories = createCategories();
-        categories.addAll(DataSetImpl.getInstance().getCategories());
     }
 
     public static synchronized DataSet getInstance() {
@@ -136,6 +134,7 @@ public final class DataSet {
                 new Example(R.string.example_interactive_using_accelerometer, AccelerometerFragment.class),
                 new Example(R.string.example_general_using_geometry_data, UsingGeometryDataFragment.class),
                 new Example(R.string.example_interactive_object_picking, ObjectPickingFragment.class),
+                new Example(R.string.example_interactive_object_rotate, ObjectRotateFragment.class),
                 new Example(R.string.example_interactive_touch_drag, TouchAndDragFragment.class),
                 new Example(R.string.example_interactive_first_person_camera, FirstPersonCameraFragment.class),
         }));

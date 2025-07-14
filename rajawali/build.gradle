@@ -3,13 +3,26 @@ plugins {
     id 'kotlin-android'
 }
 
+@SuppressWarnings('unused')
+static def getGitCommitCount() {
+    def process = "git rev-list HEAD --count".execute()
+    return process.text.toInteger()
+}
+
 android {
+    namespace 'org.rajawali3d'
     compileSdkVersion rootProject.compileSdk
 
     defaultConfig {
         minSdkVersion rootProject.minSdk
         targetSdkVersion rootProject.targetSdk
+        versionCode getGitCommitCount()
+        versionName version
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // VERSION_NAME no longer available as of 4.1
+        // https://issuetracker.google.com/issues/158695880
+        buildConfigField 'String', 'VERSION_NAME', "\"$version\""
     }
 
     compileOptions {
@@ -19,6 +32,10 @@ android {
 
     kotlinOptions {
         jvmTarget = "21"
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -33,6 +50,9 @@ android {
         }
     }
 
+    lintOptions {
+        abortOnError false
+    }
 
     testOptions {
         animationsDisabled true
@@ -42,7 +62,6 @@ android {
         }
     }
 
-    namespace 'org.rajawali3d'
     lint {
         abortOnError false
     }
@@ -59,6 +78,7 @@ dependencies {
 }
 
 //apply from: '../publish.gradle'
+apply plugin: 'kotlin-android'
 
 //task dokkaGhPages(type: org.jetbrains.dokka.gradle.DokkaTask) {
 //    outputFormat = 'html'

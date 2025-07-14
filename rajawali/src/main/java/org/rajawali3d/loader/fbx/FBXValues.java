@@ -12,12 +12,11 @@
  */
 package org.rajawali3d.loader.fbx;
 
-import android.graphics.Color;
+import java.util.Stack;
 
 import org.rajawali3d.math.vector.Vector2;
 import org.rajawali3d.math.vector.Vector3;
-
-import java.util.Stack;
+import android.graphics.Color;
 import java.util.regex.Pattern;
 
 public class FBXValues {

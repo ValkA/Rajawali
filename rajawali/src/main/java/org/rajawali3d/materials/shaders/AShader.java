@@ -136,6 +136,16 @@ public abstract class AShader extends AShaderBase {
 	 */
 	protected final GLPosition GL_POSITION = new GLPosition();
 	/**
+         * Defines an output that receives the intended size of the point to be rasterized,
+         * in pixels. This corresponds to the gl_PointSize GLSL variable.
+	 */
+	protected final GLPointCoord GL_POINT_COORD = new GLPointCoord();
+	/**
+         * Defines an output that receives the intended size of the point to be rasterized,
+         * in pixels. This corresponds to the gl_PointSize GLSL variable.
+	 */
+	protected final GLPointSize GL_POINT_SIZE = new GLPointSize();
+	/**
 	 * Defines the color of the current fragment. This is used in the fragment shader to
 	 * write the final fragment color to. This corresponds to the gl_FragColor GLSL variable.
 	 */
@@ -162,6 +172,7 @@ public abstract class AShader extends AShaderBase {
 	private Hashtable<String, ShaderVar> mGlobals;
 	private Hashtable<String, Precision> mPrecisionQualifier;
 	private Hashtable<String, ShaderVar> mConstants;
+	private Hashtable<String, String> mFunctions;
 	protected List<IShaderFragment> mShaderFragments;
 	protected int mProgramHandle;
 	protected boolean mNeedsBuild = true;
@@ -189,6 +200,7 @@ public abstract class AShader extends AShaderBase {
 		mGlobals = new Hashtable<String, ShaderVar>();
 		mPrecisionQualifier = new Hashtable<String, Precision>();
 		mConstants = new Hashtable<String, ShaderVar>();
+		mFunctions = new Hashtable<String, String>();
 		mShaderFragments = new ArrayList<IShaderFragment>();
 	}
 
@@ -563,6 +575,28 @@ public abstract class AShader extends AShaderBase {
 		return mConstants;
 	}
 
+	/**
+	 * Add a function
+	 *
+	 * @param name
+	 * @param implementation
+	 * @return
+	 */
+	protected String addFunction(String name, String implementation) {
+		mFunctions.put(name, implementation);
+		return implementation;
+	}
+
+	/**
+	 * Returns all function strings
+	 *
+	 * @return
+	 */
+	public Hashtable<String, String> getFunctions()
+	{
+		return mFunctions;
+	}
+
 	public void setLocations(final int programHandle)
 	{
 		mProgramHandle = programHandle;
@@ -793,6 +827,30 @@ public abstract class AShader extends AShaderBase {
 		}
 
 		//
+		// -- Functions
+		//
+
+                Set<Entry<String, String>> functionsSet = mFunctions.entrySet();
+		Iterator<Entry<String, String>> functionsIter = functionsSet.iterator();
+		Hashtable<String, String> functions = new Hashtable<String, String>(mFunctions);
+
+		for(int i=0; i<mShaderFragments.size(); i++)
+		{
+			IShaderFragment fragment = mShaderFragments.get(i);
+			if(fragment.getFunctions() != null)
+				functions.putAll(fragment.getFunctions());
+		}
+
+		functionsSet = functions.entrySet();
+		functionsIter = functionsSet.iterator();
+
+		while (functionsIter.hasNext()) {
+			Entry<String, String> e = functionsIter.next();
+			s.append("\n").append(e.getKey()).append(" {\n")
+			.append(e.getValue()).append("\n}\n");
+		}
+
+		//
 		// -- Call main
 		//
 
@@ -802,6 +860,16 @@ public abstract class AShader extends AShaderBase {
 
 		mShaderString = s.toString();
 		s = null;
+	}
+
+	public String abs(String value)
+	{
+		return "abs(" + value + ")";
+	}
+
+	public String abs(ShaderVar value)
+	{
+		return abs(value.getName());
 	}
 
 	/**
@@ -1023,6 +1091,13 @@ public abstract class AShader extends AShaderBase {
 	public ShaderVar mod(ShaderVar var1, ShaderVar var2)
 	{
 		ShaderVar s = new ShaderVar("mod(" + var1.getName() + ", " + var2.getName() + ")", var1.getDataType());
+		s.mInitialized = true;
+		return s;
+	}
+
+	public ShaderVar mod(ShaderVar var1, String var2)
+	{
+		ShaderVar s = new ShaderVar("mod(" + var1.getName() + ", " + var2 + ")", var1.getDataType());
 		s.mInitialized = true;
 		return s;
 	}

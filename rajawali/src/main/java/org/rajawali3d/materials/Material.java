@@ -33,6 +33,7 @@ import org.rajawali3d.materials.shaders.fragments.LightsVertexShaderFragment;
 import org.rajawali3d.materials.shaders.fragments.texture.AlphaMapFragmentShaderFragment;
 import org.rajawali3d.materials.shaders.fragments.texture.DiffuseTextureFragmentShaderFragment;
 import org.rajawali3d.materials.shaders.fragments.texture.EnvironmentMapFragmentShaderFragment;
+import org.rajawali3d.materials.shaders.fragments.texture.LightMapFragmentShaderFragment;
 import org.rajawali3d.materials.shaders.fragments.texture.NormalMapFragmentShaderFragment;
 import org.rajawali3d.materials.shaders.fragments.texture.SkyTextureFragmentShaderFragment;
 import org.rajawali3d.materials.textures.ATexture;
@@ -249,7 +250,7 @@ public class Material {
      */
     protected final float[] mNormalFloats = new float[9];
     /**
-     * Scratch normal amtrix. The normal matrix is used in the shaders to transform
+     * Scratch normal matrix. The normal matrix is used in the shaders to transform
      * the normal into eye space.
      */
     protected Matrix4 mNormalMatrix = new Matrix4();
@@ -535,6 +536,7 @@ public class Material {
         //
 
         List<ATexture> diffuseTextures = null;
+        List<ATexture> lightMapTextures = null;
         List<ATexture> normalMapTextures = null;
         List<ATexture> envMapTextures = null;
         List<ATexture> skyTextures = null;
@@ -555,6 +557,10 @@ public class Material {
                 case RENDER_TARGET:
                     if (diffuseTextures == null) diffuseTextures = new ArrayList<>();
                     diffuseTextures.add(texture);
+                    break;
+                case LIGHT:
+                    if (lightMapTextures == null) lightMapTextures = new ArrayList<>();
+                    lightMapTextures.add(texture);
                     break;
                 case NORMAL:
                     if (normalMapTextures == null) normalMapTextures = new ArrayList<>();
@@ -582,6 +588,9 @@ public class Material {
                         if (envMapTextures == null)
                             envMapTextures = new ArrayList<>();
                         envMapTextures.add(texture);
+                    } else if(hasCubeMaps) {
+                        if (diffuseTextures == null) diffuseTextures = new ArrayList<>();
+                        diffuseTextures.add(texture);
                     }
                     break;
                 case SPECULAR:
@@ -693,6 +702,11 @@ public class Material {
 
         if (alphaMapTextures != null && alphaMapTextures.size() > 0) {
             AlphaMapFragmentShaderFragment fragment = new AlphaMapFragmentShaderFragment(alphaMapTextures);
+            mFragmentShader.addShaderFragment(fragment);
+        }
+
+        if (lightMapTextures != null && lightMapTextures.size() > 0) {
+            LightMapFragmentShaderFragment fragment = new LightMapFragmentShaderFragment(lightMapTextures);
             mFragmentShader.addShaderFragment(fragment);
         }
 

@@ -498,7 +498,7 @@ public class LoaderFBX extends AMeshLoader {
 	final Pattern PATTERN_s = Pattern.compile("[\\s]+");
 	private void readLine(BufferedReader buffer, String line) throws IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 //		if(line.replaceAll(REGEX_CLEAN, REPLACE_EMPTY).length() == 0) return;
-		if(PATTERN_CLEAN.matcher(line).replaceAll(REPLACE_EMPTY).length() == 0) return;
+		if(PATTERN_CLEAN.matcher(line).replaceAll(REPLACE_EMPTY).isEmpty()) return;
 		if(line.contains("{")) {
 
 			// -- found new object
