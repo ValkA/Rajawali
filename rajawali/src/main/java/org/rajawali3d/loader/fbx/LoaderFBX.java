@@ -417,13 +417,15 @@ public class LoaderFBX extends AMeshLoader {
 					String textureName = tex.fileName;
 
 					Bitmap bitmap = null;
+					BitmapFactory.Options bitmapScalingOptions = new BitmapFactory.Options();
+					bitmapScalingOptions.inScaled = false;
 					if(mFile == null) {
 						int identifier = mResources.getIdentifier(getFileNameWithoutExtension(textureName).toLowerCase(Locale.US), "drawable", mResources.getResourcePackageName(mResourceId));
-						bitmap = BitmapFactory.decodeResource(mResources, identifier);
+						bitmap = BitmapFactory.decodeResource(mResources, identifier, bitmapScalingOptions);
 					} else {
 						try {
 							String filePath = mFile.getParent() + File.separatorChar + getOnlyFileName(textureName);
-							bitmap = BitmapFactory.decodeFile(filePath);
+							bitmap = BitmapFactory.decodeFile(filePath, bitmapScalingOptions);
 						} catch (Exception e) {
 							throw new ParsingException("["+getClass().getCanonicalName()+"] Could not find file " + getOnlyFileName(textureName));
 						}

@@ -1,21 +1,10 @@
 package org.rajawali3d.debug;
 
-import android.graphics.Color;
 import android.opengl.GLES20;
 
 import org.rajawali3d.Object3D;
-import org.rajawali3d.lights.ALight;
-import org.rajawali3d.loader.ParsingException;
-import org.rajawali3d.loader.fbx.FBXValues;
 import org.rajawali3d.materials.Material;
 import org.rajawali3d.materials.methods.DiffuseMethod;
-import org.rajawali3d.materials.textures.ATexture;
-import org.rajawali3d.math.vector.Vector3;
-
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
 
 public class NormalsObject3D extends DebugObject3D {
     float normalLength;
@@ -34,6 +23,8 @@ public class NormalsObject3D extends DebugObject3D {
 
     public NormalsObject3D(Object3D o, int lineThinkness, float normalLength, int color) {
         super(color, lineThinkness);
+        this.setPosition(o.getPosition());
+        this.setOrientation(o.getOrientation());
         this.normalLength = normalLength;
 
         float[] v = new float[o.getGeometry().getNumVertices()*3];
