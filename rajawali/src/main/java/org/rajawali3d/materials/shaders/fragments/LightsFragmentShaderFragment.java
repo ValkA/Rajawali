@@ -26,7 +26,7 @@ public class LightsFragmentShaderFragment extends AShader implements IShaderFrag
 	
 	private List<ALight> mLights;
 	
-	private RVec3[] muLightColor, muLightPosition, muLightDirection;
+	private RVec3[] muLightColor, muLightPositionView, muLightDirection;
 	private RFloat[] mvAttenuation;
 	private RVec4 mvEye;
 	private RFloat[] muLightPower, muSpotCutoffAngle, muSpotFalloff;
@@ -55,8 +55,8 @@ public class LightsFragmentShaderFragment extends AShader implements IShaderFrag
 			else if (mLights.get(i).getLightType() == ALight.POINT_LIGHT)
 				pointLightCount++;
 		}
-		
-		muLightPosition = new RVec3[lightCount];
+
+		muLightPositionView = new RVec3[lightCount];
 		muLightColor = new RVec3[lightCount];
 		muLightPower = new RFloat[lightCount];
 		muLightDirection = new RVec3[dirLightCount + spotLightCount];
@@ -76,7 +76,7 @@ public class LightsFragmentShaderFragment extends AShader implements IShaderFrag
 			ALight light = mLights.get(i);
 			int t = light.getLightType();
 
-			muLightPosition[i] = (RVec3) addUniform(LightsShaderVar.U_LIGHT_POSITION, i);
+			muLightPositionView[i] = (RVec3) addUniform(LightsShaderVar.U_LIGHT_POSITION_VIEW, i);
 			muLightPower[i] = (RFloat) addUniform(LightsShaderVar.U_LIGHT_POWER, i);
 			muLightColor[i] = (RVec3) addUniform(LightsShaderVar.U_LIGHT_COLOR, i);
 			
@@ -107,10 +107,11 @@ public class LightsFragmentShaderFragment extends AShader implements IShaderFrag
 			ALight light = mLights.get(i);
 			int t = light.getLightType();
 			RVec3 lightDir = new RVec3("lightDir" + i);
+			RVec3 lightDirView = new RVec3("lightDirView" + i);
 
 			if(t == ALight.SPOT_LIGHT || t == ALight.POINT_LIGHT)
 			{
-				lightDir.assign(normalize(muLightPosition[i].subtract(mvEye.xyz())));
+				lightDir.assign("normalize("+muLightPositionView[i].getName()+"-vEyeDir)");
 				
 				if(t == ALight.SPOT_LIGHT) {
 					//

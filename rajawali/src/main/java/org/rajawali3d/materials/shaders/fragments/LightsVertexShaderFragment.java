@@ -32,7 +32,7 @@ public class LightsVertexShaderFragment extends AShader implements IShaderFragme
 	public enum LightsShaderVar implements IGlobalShaderVar {
 		U_LIGHT_COLOR("uLightColor", DataType.VEC3),
 		U_LIGHT_POWER("uLightPower", DataType.FLOAT),
-		U_LIGHT_POSITION("uLightPosition", DataType.VEC3),
+		U_LIGHT_POSITION_VIEW("uLightPositionView", DataType.VEC3),
 		U_LIGHT_DIRECTION("uLightDirection", DataType.VEC3),
 		U_LIGHT_ATTENUATION("uLightAttenuation", DataType.VEC4),
 		U_SPOT_EXPONENT("uSpotExponent", DataType.FLOAT),
@@ -63,7 +63,7 @@ public class LightsVertexShaderFragment extends AShader implements IShaderFragme
 		}
 	}
 
-	private RVec3[] muLightColor, muLightPosition, muLightDirection;
+	private RVec3[] muLightColor, muLightPositionView, muLightDirection;
 	private RVec3 muAmbientColor, muAmbientIntensity, mvAmbientColor;
 	private RVec4[] muLightAttenuation;
 	private RFloat[] muLightPower, muSpotExponent, muSpotCutoffAngle, muSpotFalloff;
@@ -73,7 +73,7 @@ public class LightsVertexShaderFragment extends AShader implements IShaderFragme
 
 	private RFloat mgLightDistance;
 	
-	private int[] muLightColorHandles, muLightPowerHandles, muLightPositionHandles,
+	private int[] muLightColorHandles, muLightPowerHandles, muLightPositionViewHandles,
 			muLightDirectionHandles, muLightAttenuationHandles, muSpotExponentHandles,
 			muSpotCutoffAngleHandles, muSpotFalloffHandles;
 	protected int muAmbientColorHandle, muAmbientIntensityHandle;
@@ -116,10 +116,10 @@ public class LightsVertexShaderFragment extends AShader implements IShaderFragme
 		
 		muLightPower = new RFloat[lightCount];
 		muLightPowerHandles = new int[muLightPower.length];
-		
-		muLightPosition = new RVec3[lightCount];
-		muLightPositionHandles = new int[muLightPosition.length];
-		
+
+		muLightPositionView = new RVec3[lightCount];
+		muLightPositionViewHandles = new int[muLightPositionView.length];
+
 		muLightDirection = new RVec3[mDirLightCount + mSpotLightCount];
 		muLightDirectionHandles = new int[muLightDirection.length];
 		
@@ -148,7 +148,7 @@ public class LightsVertexShaderFragment extends AShader implements IShaderFragme
 
 			muLightColor[i] = (RVec3) addUniform(LightsShaderVar.U_LIGHT_COLOR, i);
 			muLightPower[i] = (RFloat) addUniform(LightsShaderVar.U_LIGHT_POWER, i);
-			muLightPosition[i] = (RVec3) addUniform(LightsShaderVar.U_LIGHT_POSITION, i);
+			muLightPositionView[i] = (RVec3) addUniform(LightsShaderVar.U_LIGHT_POSITION_VIEW, i);
 			mvAttenuation[i] = (RFloat) addVarying(LightsShaderVar.V_LIGHT_ATTENUATION, i);
 
 			if(t == ALight.DIRECTIONAL_LIGHT || t == ALight.SPOT_LIGHT)
@@ -181,7 +181,7 @@ public class LightsVertexShaderFragment extends AShader implements IShaderFragme
 		int lightAttCount = 0;
 		RMat4 modelMatrix = (RMat4) getGlobal(DefaultShaderVar.U_MODEL_MATRIX);
 		RVec4 position = (RVec4) getGlobal(DefaultShaderVar.G_POSITION);
-		
+
 		mvEye.assign(enclose(modelMatrix.multiply(position)));
 		mvAmbientColor.rgb().assign(muAmbientColor.rgb().multiply(muAmbientIntensity.rgb()));
 
@@ -189,13 +189,13 @@ public class LightsVertexShaderFragment extends AShader implements IShaderFragme
 		{
 			ALight light = mLights.get(i);
 			int t = light.getLightType();
-			
+
 			if(t == ALight.SPOT_LIGHT || t == ALight.POINT_LIGHT)
 			{
 				//
 				// -- gLightDistance = distance(vEye.xyz, uLightPosition);
 				//
-				mgLightDistance.assign(distance(mvEye.xyz(), muLightPosition[i]));
+				mgLightDistance.assign("distance(vEyeDir, "+muLightPositionView[i].getName()+")");
 				//
 				// -- vAttenuation  = 1.0 / (uLightAttenuation[1] + uLightAttenuation[2] * gLightDistance + uLightAttenuation[3] * gLightDistance * gLightDistance)
 				//
@@ -239,7 +239,7 @@ public class LightsVertexShaderFragment extends AShader implements IShaderFragme
 			
 			muLightColorHandles[i] = getUniformLocation(programHandle, LightsShaderVar.U_LIGHT_COLOR, i);
 			muLightPowerHandles[i] = getUniformLocation(programHandle, LightsShaderVar.U_LIGHT_POWER, i);
-			muLightPositionHandles[i] = getUniformLocation(programHandle, LightsShaderVar.U_LIGHT_POSITION, i);
+			muLightPositionViewHandles[i] = getUniformLocation(programHandle, LightsShaderVar.U_LIGHT_POSITION_VIEW, i);
 			
 			if(t == ALight.DIRECTIONAL_LIGHT || t == ALight.SPOT_LIGHT)
 			{
@@ -278,7 +278,7 @@ public class LightsVertexShaderFragment extends AShader implements IShaderFragme
 			
 			GLES20.glUniform3fv(muLightColorHandles[i], 1, light.getColor(), 0);
 			GLES20.glUniform1f(muLightPowerHandles[i], light.getPower());
-			GLES20.glUniform3fv(muLightPositionHandles[i], 1, ArrayUtils.convertDoublesToFloats(light.getPositionArray(), mTemp3Floats), 0);
+			GLES20.glUniform3fv(muLightPositionViewHandles[i], 1, ArrayUtils.convertDoublesToFloats(light.getViewSpacePositionArray(), mTemp3Floats), 0);
 			
 			if(t == ALight.SPOT_LIGHT)
 			{

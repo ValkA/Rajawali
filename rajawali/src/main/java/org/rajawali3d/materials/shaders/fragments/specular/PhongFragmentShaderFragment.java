@@ -12,23 +12,22 @@
  */
 package org.rajawali3d.materials.shaders.fragments.specular;
 
-import java.util.List;
+import android.graphics.Color;
+import android.opengl.GLES20;
 
 import org.rajawali3d.lights.ALight;
 import org.rajawali3d.materials.Material.PluginInsertLocation;
-import org.rajawali3d.materials.methods.DiffuseMethod.DiffuseShaderVar;
 import org.rajawali3d.materials.methods.SpecularMethod.SpecularShaderVar;
 import org.rajawali3d.materials.shaders.IShaderFragment;
 import org.rajawali3d.materials.shaders.fragments.LightsVertexShaderFragment.LightsShaderVar;
 import org.rajawali3d.materials.shaders.fragments.texture.ATextureFragmentShaderFragment;
 import org.rajawali3d.materials.textures.ATexture;
-import android.graphics.Color;
-import android.opengl.GLES20;
+import java.util.List;
 
 
 public class PhongFragmentShaderFragment extends ATextureFragmentShaderFragment implements IShaderFragment {
 	public final static String SHADER_ID = "PHONG_FRAGMENT";
-	
+
 	private RVec3 muSpecularColor;
 	private RFloat muShininess;
 	private RFloat muSpecularIntensity;

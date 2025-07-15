@@ -1102,7 +1102,9 @@ public class Scene {
         synchronized (mLights) {
             final int numLights = mLights.size();
             for (int i = 0; i < numLights; ++i) {
-                mLights.get(i).onRecalculateModelMatrix(null);
+				ALight aLight = mLights.get(i);
+				aLight.onRecalculateModelMatrix(null);
+				aLight.updateViewMatrix(mVMatrix);
             }
         }
 
@@ -1138,9 +1140,9 @@ public class Scene {
 		}
 
         synchronized (mChildren) {
-			for (int i = 0, j = mChildren.size(); i < j; ++i) {
-                // Model matrix updates are deferred to the render method due to parent matrix needs
-				mChildren.get(i).render(mCamera, mVPMatrix, mPMatrix, mVMatrix, sceneMaterial);
+			for (Object3D child: mChildren) {
+				// Model matrix updates are deferred to the render method due to parent matrix needs
+				child.render(mCamera, mVPMatrix, mPMatrix, mVMatrix, sceneMaterial);
 			}
 		}
 

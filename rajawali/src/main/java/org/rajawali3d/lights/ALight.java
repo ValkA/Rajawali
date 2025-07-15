@@ -13,6 +13,7 @@
 package org.rajawali3d.lights;
 
 import org.rajawali3d.ATransformable3D;
+import org.rajawali3d.math.Matrix4;
 import org.rajawali3d.math.vector.Vector3;
 
 public abstract class ALight extends ATransformable3D {
@@ -22,9 +23,11 @@ public abstract class ALight extends ATransformable3D {
 
 	protected final float[] mColor = new float[] { 1.0f, 1.0f, 1.0f };
 	protected final double[] mPositionArray = new double[3];
+	protected final double[] mViewSpacePositionArray = new double[3];
 	protected final double[] mDirectionArray = new double[3];
 	protected float mPower = .5f;
 	private int mLightType;
+	private Vector3 viewSpacePosition = new Vector3();
 
 	protected boolean mUseObjectTransform;
 
@@ -83,4 +86,15 @@ public abstract class ALight extends ATransformable3D {
 		mPositionArray[2] = mPosition.z;
 		return mPositionArray;
 	}
+
+	public void updateViewMatrix(Matrix4 mVMatrix){
+		viewSpacePosition.setAll(mPosition).multiply(mVMatrix);
+	}
+
+    public double[] getViewSpacePositionArray() {
+		mViewSpacePositionArray[0] = viewSpacePosition.x;
+		mViewSpacePositionArray[1] = viewSpacePosition.y;
+		mViewSpacePositionArray[2] = viewSpacePosition.z;
+        return mViewSpacePositionArray;
+    }
 }

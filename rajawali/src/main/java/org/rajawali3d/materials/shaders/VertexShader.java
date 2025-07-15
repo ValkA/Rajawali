@@ -141,6 +141,7 @@ public class VertexShader extends AShader {
     public void main() {
         mgPosition.assign(maPosition);
         mgNormal.assign(maNormal);
+        mvEyeDir.assign(castVec3(muModelViewMatrix.multiply(mgPosition)));
 
         if (mTextureTransformMatrixEnabled){
             mgTextureCoord.assign(new RVec3(muTextureTransformMatrix.multiply(castVec3(maTextureCoord.getVarName()+", 1.0"))).xy());
@@ -186,7 +187,6 @@ public class VertexShader extends AShader {
             }
         }
         mvColor.assign(mgColor);
-        mvEyeDir.assign(castVec3(muModelViewMatrix.multiply(mgPosition)));
 
         for (int i = 0; i < mShaderFragments.size(); i++) {
             IShaderFragment fragment = mShaderFragments.get(i);
