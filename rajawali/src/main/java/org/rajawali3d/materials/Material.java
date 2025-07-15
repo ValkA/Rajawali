@@ -1133,26 +1133,6 @@ public class Material {
     public void setModelMatrix(Matrix4 modelMatrix) {
         mModelMatrix = modelMatrix;//.getFloatValues();
         mVertexShader.setModelMatrix(mModelMatrix);
-
-        mNormalMatrix.setAll(modelMatrix);
-        try {
-            mNormalMatrix.setToNormalMatrix();
-        } catch (IllegalStateException exception) {
-            RajLog.d("modelMatrix is degenerate (zero scale)...");
-        }
-        float[] matrix = mNormalMatrix.getFloatValues();
-
-        mNormalFloats[0] = matrix[0];
-        mNormalFloats[1] = matrix[1];
-        mNormalFloats[2] = matrix[2];
-        mNormalFloats[3] = matrix[4];
-        mNormalFloats[4] = matrix[5];
-        mNormalFloats[5] = matrix[6];
-        mNormalFloats[6] = matrix[8];
-        mNormalFloats[7] = matrix[9];
-        mNormalFloats[8] = matrix[10];
-
-        mVertexShader.setNormalMatrix(mNormalFloats);
     }
 
     /**
@@ -1173,6 +1153,26 @@ public class Material {
     public void setModelViewMatrix(Matrix4 modelViewMatrix) {
         mModelViewMatrix = modelViewMatrix.getFloatValues();
         mVertexShader.setModelViewMatrix(mModelViewMatrix);
+
+        mNormalMatrix.setAll(mModelViewMatrix);
+        try {
+            mNormalMatrix.setToNormalMatrix();
+        } catch (IllegalStateException exception) {
+            RajLog.d("modelMatrix is degenerate (zero scale)...");
+        }
+        float[] matrix = mNormalMatrix.getFloatValues();
+
+        mNormalFloats[0] = matrix[0];
+        mNormalFloats[1] = matrix[1];
+        mNormalFloats[2] = matrix[2];
+        mNormalFloats[3] = matrix[4];
+        mNormalFloats[4] = matrix[5];
+        mNormalFloats[5] = matrix[6];
+        mNormalFloats[6] = matrix[8];
+        mNormalFloats[7] = matrix[9];
+        mNormalFloats[8] = matrix[10];
+
+        mVertexShader.setNormalMatrix(mNormalFloats);
     }
 
     /**
