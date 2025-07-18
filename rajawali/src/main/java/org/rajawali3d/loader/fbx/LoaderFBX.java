@@ -51,6 +51,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Stack;
@@ -88,6 +89,8 @@ public class LoaderFBX extends AMeshLoader {
 	private FBXValues     mFbx;
 	private Stack<Object> mObjStack;
 	private Renderer      mRenderer;
+
+	private HashMap<String, Texture> textureCache = new HashMap<>();
 
 	public LoaderFBX(Renderer renderer, String fileOnSDCard) {
 		super(renderer, fileOnSDCard);
@@ -415,23 +418,24 @@ public class LoaderFBX extends AMeshLoader {
 				{
 					// -- one texture for now
 					String textureName = tex.fileName;
-
-					Bitmap bitmap = null;
-					BitmapFactory.Options bitmapScalingOptions = new BitmapFactory.Options();
-					bitmapScalingOptions.inScaled = false;
-					if(mFile == null) {
-						int identifier = mResources.getIdentifier(getFileNameWithoutExtension(textureName).toLowerCase(Locale.US), "drawable", mResources.getResourcePackageName(mResourceId));
-						bitmap = BitmapFactory.decodeResource(mResources, identifier, bitmapScalingOptions);
+					Texture texture = null;
+					if (textureCache.containsKey(textureName)){
+						texture = textureCache.get(textureName);
 					} else {
 						try {
-							String filePath = mFile.getParent() + File.separatorChar + getOnlyFileName(textureName);
-							bitmap = BitmapFactory.decodeFile(filePath, bitmapScalingOptions);
+							BitmapFactory.Options opts = new BitmapFactory.Options();
+							opts.inScaled = false;
+							Bitmap bitmap = (mFile == null) ?
+									BitmapFactory.decodeResource(mResources, mResources.getIdentifier(getFileNameWithoutExtension(textureName).toLowerCase(Locale.US), "drawable", mResources.getResourcePackageName(mResourceId)), opts) :
+									BitmapFactory.decodeFile(mFile.getParent() + File.separatorChar + getOnlyFileName(textureName), opts);
+							texture = new Texture(PATTERN_W_or_.matcher(textureName).replaceAll(""), bitmap);
+							textureCache.put(textureName, texture);
 						} catch (Exception e) {
-							throw new ParsingException("["+getClass().getCanonicalName()+"] Could not find file " + getOnlyFileName(textureName));
+							throw new ParsingException("[" + getClass().getCanonicalName() + "] Could not find file " + getOnlyFileName(textureName));
 						}
 					}
 					o.getMaterial().setColorInfluence(0);
-					o.getMaterial().addTexture(new Texture(PATTERN_W_or_.matcher(textureName).replaceAll(""), bitmap));
+					o.getMaterial().addTexture(texture);
 					return;
 				}
 			}
